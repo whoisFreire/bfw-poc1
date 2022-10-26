@@ -1,7 +1,8 @@
 class UserProfile {
-    constructor(name, age, gender, cpf, cep, street, district, city, country) {
+    constructor(name, age, birthdate, gender, cpf, cep, street, district, city, country) {
         this.name = name;
         this.age = age;
+        this.birthdate = birthdate;
         this.gender = gender;
         this.cpf = cpf;
         this.address = {

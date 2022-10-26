@@ -4,6 +4,7 @@ const { ComponentDialog, TextPrompt, ChoicePrompt, WaterfallDialog } = require('
 const { UserProfile } = require('../Models/UserProfile');
 const { CEP_DIALOG, CepDialog } = require('./CepDialog');
 const intentsNames = require('../constants/intentsNames');
+const birthdateGenerator = require('../utils/birthdateGenerator');
 
 const USER_DIALOG = 'USER_DIALOG';
 const NAME_PROMPT = 'NAME_PROMPT';
@@ -19,12 +20,14 @@ class UserDialog extends ComponentDialog {
 
         this.addDialog(new TextPrompt(NAME_PROMPT, this.nameValidator.bind(this)));
         this.addDialog(new TextPrompt(AGE_PROMPT, this.ageValidator.bind(this)));
+        this.addDialog(new TextPrompt(BIRTHDATE_PROMPT, this.bithdateValidator.bind(this)));
         this.addDialog(new ChoicePrompt(GENDER_PROMPT, this.genderValidator.bind(this)));
         this.addDialog(new TextPrompt(CPF_PROMPT, this.cpfValidator.bind(this)));
         this.addDialog(new CepDialog(CEP_DIALOG));
         this.addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
             this.nameStep.bind(this),
             this.ageStep.bind(this),
+            this.birthdateStep.bind(this),
             this.genderStep.bind(this),
             this.cpfStep.bind(this),
             this.cepStep.bind(this),
@@ -63,11 +66,17 @@ class UserDialog extends ComponentDialog {
 
     async birthdateStep(stepContext) {
         stepContext.values.userProfile.age = stepContext.result;
-        return await stepContext.prompt(BIRTHDATE_PROMPT, 'informe o dia e o mês do seu aniversário');
+        return await stepContext.prompt(BIRTHDATE_PROMPT, 'informe o dia e o mês do seu aniversário: (10 de setembro; 10/09)');
+    }
+
+    async bithdateValidator(stepContext) {
+        const entity = stepContext.recognized.value;
+        return !!entity;
     }
 
     async genderStep(stepContext) {
-        stepContext.values.userProfile.age = stepContext.result;
+        const birthdate = birthdateGenerator(stepContext.result);
+        stepContext.values.userProfile.birthdate = birthdate;
         const buttons = ['Masculino', 'Feminino', 'Outro'];
         const card = CardFactory.heroCard(undefined, undefined, buttons, { text: 'Informe seu gênero:' });
         const prompt = MessageFactory.attachment(card);
