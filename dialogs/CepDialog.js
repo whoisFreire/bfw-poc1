@@ -1,4 +1,5 @@
 const { ComponentDialog, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
+const intentsNames = require('../constants/intentsNames');
 const { cepApi } = require('../Services');
 
 const CEP_DIALOG = 'CEP_DIALOG';
@@ -9,7 +10,7 @@ class CepDialog extends ComponentDialog {
     constructor(id) {
         super(id || CEP_DIALOG);
 
-        this.addDialog(new TextPrompt(CEP_PROMPT));
+        this.addDialog(new TextPrompt(CEP_PROMPT, this.cepValitor.bind(this)));
         this.addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
             this.cepStep.bind(this),
             this.cepRequisitionStep.bind(this)
@@ -20,6 +21,12 @@ class CepDialog extends ComponentDialog {
 
     async cepStep(stepContext) {
         return await stepContext.prompt(CEP_PROMPT, 'informe seu CEP:');
+    }
+
+    async cepValitor(stepContext) {
+        const { intent } = stepContext.context.result;
+        if (!intent) return false;
+        return intent.score > 0.7 && intentsNames.includes(intent.intent);
     }
 
     async cepRequisitionStep(stepContext) {

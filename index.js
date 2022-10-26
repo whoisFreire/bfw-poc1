@@ -13,26 +13,16 @@ const {
     UserState
 } = require('botbuilder');
 
-const { LuisRecognizer } = require('botbuilder-ai');
-
 const { DialogBot } = require('./bots/DialogBot');
 const { MainDialog } = require('./dialogs/mainDialog');
+const { Recognizer } = require('./luis/Recognizer');
+const luisConfig = require('./luis/config');
 
 const credentialsFactory = new ConfigurationServiceClientCredentialFactory({
     MicrosoftAppId: process.env.MicrosoftAppId,
     MicrosoftAppPassword: process.env.MicrosoftAppPassword,
     MicrosoftAppType: process.env.MicrosoftAppType,
     MicrosoftAppTenantId: process.env.MicrosoftAppTenantId
-});
-
-const luisRecognizer = new LuisRecognizer({
-    applicationId: process.env.LuisAppId,
-    endpointKey: process.env.LuisAPIKey,
-    endpoint: process.env.LuisAPIHostName
-}, {
-    apiVersion: 'v3',
-    includeAllIntents: true,
-    includeInstanceData: true
 });
 
 const botFrameworkAuthentication = createBotFrameworkAuthenticationFromConfiguration(null, credentialsFactory);
@@ -60,8 +50,8 @@ const memoryStorage = new MemoryStorage();
 const conversationState = new ConversationState(memoryStorage);
 const userState = new UserState(memoryStorage);
 
-const dialog = new MainDialog(luisRecognizer);
-const bot = new DialogBot(conversationState, userState, dialog);
+const dialog = new MainDialog();
+const bot = new DialogBot(conversationState, userState, dialog, new Recognizer(), luisConfig);
 
 const server = restify.createServer();
 server.use(restify.plugins.bodyParser());

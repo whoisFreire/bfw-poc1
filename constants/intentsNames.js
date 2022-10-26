@@ -1,3 +1,7 @@
 module.exports = [
-    'Bem vindo'
+    'user_age',
+    'user_name',
+    'user_cep',
+    'user_cpf',
+    'user_gender'
 ];
