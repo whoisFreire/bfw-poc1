@@ -1,8 +1,7 @@
-const monthChanger = require('./monthChanger');
-
-module.exports = function birthdateGenerator(string) {
+module.exports = function birthdateGenerator(birthdate, age) {
     // eslint-disable-next-line no-unused-vars
-    const [day, _, month] = string.split(' ');
-    const monthInNumber = monthChanger(month);
-    return `${ day }/${ monthInNumber }`;
+    const [day, month] = birthdate.split('/');
+    const userAge = age.split(' ')[0];
+    const year = new Date().getFullYear() - userAge;
+    return `${ day }/${ month }/${ year }`;
 };

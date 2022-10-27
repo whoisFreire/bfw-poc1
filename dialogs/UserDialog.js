@@ -5,6 +5,7 @@ const { UserProfile } = require('../Models/UserProfile');
 const { CEP_DIALOG, CepDialog } = require('./CepDialog');
 const intentsNames = require('../constants/intentsNames');
 const birthdateGenerator = require('../utils/birthdateGenerator');
+const cpfFormater = require('../utils/cpfFormater');
 
 const USER_DIALOG = 'USER_DIALOG';
 const NAME_PROMPT = 'NAME_PROMPT';
@@ -38,18 +39,17 @@ class UserDialog extends ComponentDialog {
     }
 
     async nameStep(stepContext) {
-        const options = {
-            prompt: 'informe seu nome:',
-            retryPrompt: 'nao entendi seu nome, tente novamente.\n Informe seu nome:'
-        };
-
         stepContext.values.userProfile = new UserProfile();
-        return await stepContext.prompt(NAME_PROMPT, options);
+        return await stepContext.prompt(NAME_PROMPT, 'informe seu nome:');
     }
 
     async nameValidator(stepContext) {
-        const resultRecognized = stepContext.context.result;
-        return resultRecognized.intent.score > 0.6 && intentsNames.includes(resultRecognized.intent.intent);
+        const { entity } = stepContext.context.result;
+        if (entity === undefined) {
+            stepContext.context.sendActivity('Não entendi, tente novamente');
+            return false;
+        };
+        return true;
     };
 
     async ageStep(stepContext) {
@@ -60,22 +60,33 @@ class UserDialog extends ComponentDialog {
     }
 
     async ageValidator(stepContext) {
-        const { intent } = stepContext.context.result;
-        return intent.score > 0.6 && intentsNames.includes(intent.intent);
+        const { entity } = stepContext.context.result;
+        if (entity === undefined) {
+            stepContext.context.sendActivity('Não entendi, tente novamente');
+            return false;
+        };
+        return true;
     }
 
     async birthdateStep(stepContext) {
         stepContext.values.userProfile.age = stepContext.result;
-        return await stepContext.prompt(BIRTHDATE_PROMPT, 'informe o dia e o mês do seu aniversário: (10 de setembro; 10/09)');
+        return await stepContext.prompt(BIRTHDATE_PROMPT, `informe o dia e o mês do seu aniversário: 
+
+(exemplo: 10/09) 😊`);
     }
 
     async bithdateValidator(stepContext) {
-        const entity = stepContext.recognized.value;
-        return !!entity;
+        const { entity } = stepContext.context.result;
+        if (entity === undefined) {
+            stepContext.context.sendActivity('Não entendi, tente novamente');
+            return false;
+        }
+        return true;
     }
 
     async genderStep(stepContext) {
-        const birthdate = birthdateGenerator(stepContext.result);
+        const age = stepContext.values.userProfile.age;
+        const birthdate = birthdateGenerator(stepContext.result, age);
         stepContext.values.userProfile.birthdate = birthdate;
         const buttons = ['Masculino', 'Feminino', 'Outro'];
         const card = CardFactory.heroCard(undefined, undefined, buttons, { text: 'Informe seu gênero:' });
@@ -86,7 +97,8 @@ class UserDialog extends ComponentDialog {
 
     async genderValidator(stepContext) {
         const { intent } = stepContext.context.result;
-        if (!intent) {
+        if (intent === undefined) {
+            stepContext.context.sendActivity('Não entendi, tente novamente');
             return false;
         }
         return intent.score > 0.8 && intentsNames.includes(intent.intent);
@@ -95,19 +107,21 @@ class UserDialog extends ComponentDialog {
     async cpfStep(stepContext) {
         const { context } = stepContext;
         stepContext.values.userProfile.gender = context.activity.text;
-        return await stepContext.prompt(CPF_PROMPT, 'informe seu CPF (somente números):');
+        return await stepContext.prompt(CPF_PROMPT, 'informe seu CPF:');
     }
 
     async cpfValidator(stepContext) {
         const { intent } = stepContext.context.result;
-        if (!intent) {
+        if (intent === undefined) {
+            stepContext.context.sendActivity('Não entendi, tente novamente');
             return false;
         }
         return intent.score > 0.7 && intentsNames.includes(intent.intent);
     }
 
     async cepStep(stepContext) {
-        stepContext.values.userProfile.cpf = stepContext.result;
+        const cpf = cpfFormater(stepContext.result);
+        stepContext.values.userProfile.cpf = cpf;
 
         return await stepContext.beginDialog(CEP_DIALOG);
     }

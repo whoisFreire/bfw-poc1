@@ -4,5 +4,6 @@ module.exports = [
     'CPF',
     'CEP',
     'gender',
-    'datetimeV2'
+    'birthdate',
+    'number'
 ];
