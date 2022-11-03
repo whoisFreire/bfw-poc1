@@ -40,7 +40,7 @@ class UserDialog extends ComponentDialog {
 
     async nameStep(stepContext) {
         stepContext.values.userProfile = new UserProfile();
-        return await stepContext.prompt(NAME_PROMPT, 'informe seu nome:');
+        return stepContext.prompt(NAME_PROMPT, 'informe seu nome:');
     }
 
     async nameValidator(stepContext) {
@@ -56,7 +56,7 @@ class UserDialog extends ComponentDialog {
         const { entity: nome } = stepContext.context.result;
         stepContext.values.userProfile.name = nome;
 
-        return await stepContext.prompt(AGE_PROMPT, 'informe sua idade:');
+        return stepContext.prompt(AGE_PROMPT, 'informe sua idade:');
     }
 
     async ageValidator(stepContext) {
@@ -70,7 +70,7 @@ class UserDialog extends ComponentDialog {
 
     async birthdateStep(stepContext) {
         stepContext.values.userProfile.age = stepContext.context.result.entity;
-        return await stepContext.prompt(BIRTHDATE_PROMPT, `informe o dia e o mês do seu aniversário: 
+        return stepContext.prompt(BIRTHDATE_PROMPT, `informe o dia e o mês do seu aniversário: 
 
 (exemplo: 10/09) 😊`);
     }
@@ -91,7 +91,7 @@ class UserDialog extends ComponentDialog {
         const card = CardFactory.heroCard(undefined, undefined, buttons, { text: 'Informe seu gênero:' });
         const prompt = MessageFactory.attachment(card);
 
-        return await stepContext.prompt(GENDER_PROMPT, { prompt });
+        return stepContext.prompt(GENDER_PROMPT, { prompt });
     }
 
     async genderValidator(stepContext) {
@@ -106,7 +106,7 @@ class UserDialog extends ComponentDialog {
     async cpfStep(stepContext) {
         const { context } = stepContext;
         stepContext.values.userProfile.gender = context.activity.text;
-        return await stepContext.prompt(CPF_PROMPT, 'informe seu CPF:');
+        return stepContext.prompt(CPF_PROMPT, 'informe seu CPF:');
     }
 
     async cpfValidator(stepContext) {
@@ -122,7 +122,7 @@ class UserDialog extends ComponentDialog {
         const cpf = cpfFormater(stepContext.result);
         stepContext.values.userProfile.cpf = cpf;
 
-        return await stepContext.beginDialog(CEP_DIALOG);
+        return stepContext.beginDialog(CEP_DIALOG);
     }
 
     async finalStep(stepContext) {
@@ -134,7 +134,7 @@ class UserDialog extends ComponentDialog {
         stepContext.values.userProfile.address.city = localidade;
         stepContext.values.userProfile.address.country = uf;
         const userProfile = stepContext.values.userProfile;
-        return await stepContext.endDialog(userProfile);
+        return stepContext.endDialog(userProfile);
     }
 }
 

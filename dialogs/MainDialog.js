@@ -36,13 +36,13 @@ class MainDialog extends ComponentDialog {
     }
 
     async actStep(stepContext) {
-        return await stepContext.beginDialog(USER_DIALOG);
+        return stepContext.beginDialog(USER_DIALOG);
     }
 
     async finalStep(stepContext) {
         const user = stepContext.result;
         await stepContext.context.sendActivity(`Seu nome é ${ user.name }, você nasceu no dia ${ user.birthdate }, e seu gênero é ${ user.gender }. Seu CPF é ${ user.cpf }, e você reside na cidade ${ user.address.city } – ${ user.address.country }.`);
-        return await stepContext.context.sendActivity('cadastro Finalizado');
+        return stepContext.context.sendActivity('cadastro Finalizado');
     }
 }
 

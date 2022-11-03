@@ -19,7 +19,7 @@ class CepDialog extends ComponentDialog {
     }
 
     async cepStep(stepContext) {
-        return await stepContext.prompt(CEP_PROMPT, 'informe seu CEP:');
+        return stepContext.prompt(CEP_PROMPT, 'informe seu CEP:');
     }
 
     async cepValitor(stepContext) {
@@ -37,7 +37,7 @@ class CepDialog extends ComponentDialog {
     async cepRequisitionStep(stepContext) {
         const cep = stepContext.result;
         const address = await cepApi.fetch(cep);
-        return await stepContext.endDialog(address);
+        return stepContext.endDialog(address);
     }
 }
 
