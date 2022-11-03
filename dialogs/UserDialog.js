@@ -61,7 +61,7 @@ class UserDialog extends ComponentDialog {
 
     async ageValidator(stepContext) {
         const { entity } = stepContext.context.result;
-        if (entity === undefined) {
+        if (entity === undefined || isNaN(entity) || entity === null) {
             stepContext.context.sendActivity('Não entendi, tente novamente');
             return false;
         };
@@ -69,16 +69,15 @@ class UserDialog extends ComponentDialog {
     }
 
     async birthdateStep(stepContext) {
-        stepContext.values.userProfile.age = stepContext.result;
+        stepContext.values.userProfile.age = stepContext.context.result.entity;
         return await stepContext.prompt(BIRTHDATE_PROMPT, `informe o dia e o mês do seu aniversário: 
 
 (exemplo: 10/09) 😊`);
     }
 
     async bithdateValidator(stepContext) {
-        const { entity } = stepContext.context.result;
-        if (entity === undefined) {
-            stepContext.context.sendActivity('Não entendi, tente novamente');
+        if (stepContext.recognized.value.split(' ').length > 1) {
+            stepContext.context.sendActivity('Não entendi, tente novamente. Lembre-se de informar no formato informado');
             return false;
         }
         return true;
